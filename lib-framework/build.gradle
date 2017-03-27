@@ -30,9 +30,10 @@ dependencies {
     compile "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
     compile "com.android.support:design:$rootProject.ext.supportLibraryVersion"
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "io.michaelrocks:lightsaber-core-kotlin:$lightsaber_version"
     compile "io.reactivex:rxkotlin:$rootProject.ext.kotlin_rxversion"
     compile "io.reactivex:rxandroid:$rootProject.ext.rxAndroidVersion"
+    kapt "com.google.dagger:dagger-compiler:$rootProject.ext.daggerVersion"
+    compile "com.google.dagger:dagger:$rootProject.ext.daggerVersion"
 
     compile project(path: ':lib-core-impl')
 }

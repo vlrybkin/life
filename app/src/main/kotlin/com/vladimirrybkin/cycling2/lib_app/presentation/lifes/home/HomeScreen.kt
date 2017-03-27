@@ -4,7 +4,7 @@ import com.vladimirrybkin.cycling2.activities.R
 import com.vladimirrybkin.cycling2.lib_app.data.annotations.BootstrapRequired
 import com.vladimirrybkin.cycling2.lib_core.presentation.life.base.Life
 import com.vladimirrybkin.lib_framework.presentation.life.ParentLayout
-import io.michaelrocks.lightsaber.Injector
+import dagger.MembersInjector
 
 /**
  * The home screen life.
@@ -13,6 +13,8 @@ import io.michaelrocks.lightsaber.Injector
  */
 @ParentLayout(layoutId = R.layout.screen_home)
 @BootstrapRequired(true)
-class HomeScreen(val injector: () -> Injector) : Life {
+class HomeScreen(val injector: () -> MembersInjector<HomeScreen>) : Life {
+
+    // TODO
 
 }

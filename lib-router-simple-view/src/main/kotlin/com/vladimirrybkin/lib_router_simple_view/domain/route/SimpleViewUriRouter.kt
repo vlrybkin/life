@@ -59,23 +59,23 @@ open class SimpleViewUriRouter(val containerView: ViewGroup) : UriRouter() {
                     defaultExecutor
 
             val inLife = produceLife(key, data) ?:
-                    throw IllegalStateException("The router cannot createLifeTransition a lifecycle for the key " + key)
+                    throw IllegalStateException("The router cannot create a lifecycle for the key " + key)
             val outLife = currentLife
 
             currentTransition = Completable.concat(
                     executor.createPreTransition(containerView.context,
-                            key, savedState,
+                            key,
                             currentKey,
-                            inLife, data, outLife),
+                            inLife, data, savedState, outLife),
                     executor.createLifeTransition(containerView.context,
                             containerView,
-                            key, savedState, transitionIn,
+                            key, transitionIn,
                             currentKey, transitionOut,
-                            inLife, data, outLife),
+                            inLife, data, savedState, outLife),
                     executor.createPostTransition(containerView.context,
-                            key, savedState,
+                            key,
                             currentKey,
-                            inLife, data, outLife)
+                            inLife, data, savedState, outLife)
             )
                     .subscribeOn(AndroidSchedulers.mainThread())
                     .doOnCompleted {

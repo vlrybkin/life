@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'io.michaelrocks.lightsaber.android'
 
 android {
     compileSdkVersion 25
@@ -24,6 +23,10 @@ android {
     }
 }
 
+kapt {
+    generateStubs = true
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
@@ -32,7 +35,9 @@ dependencies {
     compile "org.jetbrains.anko:anko-sdk19:$ankoVersion"
     compile "com.android.support:design:$rootProject.ext.supportLibraryVersion"
 
-    compile "io.michaelrocks:lightsaber-core-kotlin:$lightsaber_version"
+    kapt "com.google.dagger:dagger-compiler:$rootProject.ext.daggerVersion"
+    compile "com.google.dagger:dagger:$rootProject.ext.daggerVersion"
+
     compile project(path: ':lib-framework')
     compile project(path: ':lib-router-simple-view')
 }

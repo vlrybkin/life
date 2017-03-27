@@ -4,7 +4,7 @@ import com.vladimirrybkin.cycling2.activities.R
 import com.vladimirrybkin.cycling2.lib_app.data.annotations.BootstrapRequired
 import com.vladimirrybkin.cycling2.lib_core.presentation.life.base.Life
 import com.vladimirrybkin.lib_framework.presentation.life.ParentLayout
-import io.michaelrocks.lightsaber.Injector
+import dagger.MembersInjector
 
 /**
  * The collapsing screen life.
@@ -13,6 +13,6 @@ import io.michaelrocks.lightsaber.Injector
  */
 @ParentLayout(layoutId = R.layout.screen_collapse_recycler)
 @BootstrapRequired(true)
-class CollapseScreen(val injector: () -> Injector) : Life {
+class CollapseScreen(val injector: () -> MembersInjector<CollapseScreen>) : Life {
     // TODO
 }

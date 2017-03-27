@@ -5,8 +5,8 @@ import android.content.Context
 import com.vladimirrybkin.cycling2.lib_app.data.model.Bootstrap
 import com.vladimirrybkin.cycling2.lib_app.domain.bootstrap.BootstrapConsumer
 import com.vladimirrybkin.cycling2.lib_app.domain.bootstrap.BootstrapProvider
+import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.LifeKeysModule
 import com.vladimirrybkin.lib_framework.domain.di.DIContextWrapper
-import io.michaelrocks.lightsaber.Lightsaber
 
 /**
  * The main application instance.
@@ -19,10 +19,14 @@ class MainApplication : Application(), BootstrapProvider, BootstrapConsumer {
 
     private var bootstrap: Bootstrap? = null
 
-    override fun attachBaseContext(base : Context) {
+    override fun attachBaseContext(base: Context) {
         contextWrapper = DIContextWrapper(base, true)
-        val appInjector = Lightsaber.get().createInjector(MainApplicationDI.MainApplicationComponent(this))
-        contextWrapper.addComponent(MainApplicationDI.COMPONENT_NAME, appInjector)
+
+        val appComponent = DaggerMainApplicationDI_MainApplicationComponent.builder()
+                        .mainApplicationModule(MainApplicationDI.MainApplicationModule(this))
+                        .lifeKeysModule(LifeKeysModule())
+                        .build()
+        contextWrapper.addComponent(MainApplicationDI.COMPONENT_NAME, appComponent)
         super.attachBaseContext(contextWrapper)
     }
 

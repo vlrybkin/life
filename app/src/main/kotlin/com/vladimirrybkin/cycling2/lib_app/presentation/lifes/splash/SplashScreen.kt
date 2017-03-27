@@ -8,8 +8,9 @@ import com.vladimirrybkin.cycling2.lib_app.data.model.DummyBootstrap
 import com.vladimirrybkin.cycling2.lib_app.domain.bootstrap.BootstrapConsumer
 import com.vladimirrybkin.cycling2.lib_core.domain.route.uri.UriRoute
 import com.vladimirrybkin.cycling2.lib_core.presentation.life.base.Life
+import com.vladimirrybkin.lib_framework.domain.route.RouteBack
 import com.vladimirrybkin.lib_framework.presentation.life.ParentLayout
-import io.michaelrocks.lightsaber.Injector
+import dagger.MembersInjector
 import rx.Observable
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -21,12 +22,12 @@ import javax.inject.Inject
  */
 @ParentLayout(layoutId = R.layout.screen_splash)
 @BootstrapRequired(false)
-class SplashScreen(val injector: (SplashScreenDI.SplashScreenModule) -> Injector) : Life {
+class SplashScreen(val injector: (SplashScreenDI.SplashScreenModule) -> MembersInjector<SplashScreen>) : Life {
 
     @Inject
     lateinit var bootstrapConsumer: BootstrapConsumer
 
-    @Inject
+    @field:[Inject RouteBack]
     lateinit var nextScreenRoute: UriRoute
 
     override fun onCreateView(parentViewGroup: ViewGroup, inState: Bundle?) {

@@ -17,29 +17,29 @@ interface RouterTransitionExecutor {
 
     fun createPreTransition(context: Context,
                             keyIn: Uri,
-                            savedState: Bundle?,
                             keyOut: Uri?,
                             inLife: Life,
                             inData: Bundle?,
+                            savedState: Bundle?,
                             outLife: Life?): Completable = Completable.complete()
 
     fun createLifeTransition(context: Context,
                              containerView: ViewGroup,
                              keyIn: Uri,
-                             savedState: Bundle?,
                              transitionIn: RouteTransition?,
                              keyOut: Uri?,
                              transitionOut: RouteTransition?,
                              inLife: Life,
                              inData: Bundle?,
+                             savedState: Bundle?,
                              outLife: Life?): Completable
 
     fun createPostTransition(context: Context,
                              keyIn: Uri,
-                             savedState: Bundle?,
                              keyOut: Uri?,
                              inLife: Life,
                              inData: Bundle?,
+                             savedState: Bundle?,
                              outLife: Life?): Completable = Completable.complete()
 
 }

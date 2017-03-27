@@ -1,19 +1,20 @@
 package com.vladimirrybkin.cycling2.activities.presentation.app
 
 import android.app.Application
+import com.vladimirrybkin.cycling2.activities.presentation.activity.MainActivityDI
 import com.vladimirrybkin.cycling2.lib_app.domain.bootstrap.BootstrapConsumer
 import com.vladimirrybkin.cycling2.lib_app.domain.bootstrap.BootstrapProvider
 import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.LifeKeysModule
-import io.michaelrocks.lightsaber.Component
-import io.michaelrocks.lightsaber.Module
-import io.michaelrocks.lightsaber.Provides
+import dagger.Component
+import dagger.Module
+import dagger.Provides
 
 /**
  * Application DI classes.
  *
  * @author Vladimir Rybkin
  */
-class MainApplicationDI {
+interface MainApplicationDI {
 
     companion object {
 
@@ -21,14 +22,11 @@ class MainApplicationDI {
 
     }
 
-    @Component
-    class MainApplicationComponent(val application: MainApplication) {
+    @Component(modules = arrayOf(MainApplicationDI.MainApplicationModule::class, LifeKeysModule::class))
+    interface MainApplicationComponent {
 
-        @Provides
-        fun provideMainApplicationModule(): MainApplicationModule = MainApplicationModule(application)
-
-        @Provides
-        fun provideLifeKeysModule(): LifeKeysModule = LifeKeysModule()
+        fun createActivityComponent(activityModule: MainActivityDI.MainActivityModule):
+                MainActivityDI.MainActivityComponent
 
     }
 

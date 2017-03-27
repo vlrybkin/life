@@ -1,18 +1,14 @@
 package com.vladimirrybkin.cycling2.activities.presentation.lifes
 
+import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.home.HomeScreen
 import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.home.HomeScreenDI
-import io.michaelrocks.lightsaber.Component
-import io.michaelrocks.lightsaber.Provides
+import dagger.MembersInjector
+import dagger.Subcomponent
 
 /**
  * The home screen component.
  *
  * @author Vladimir Rybkin
  */
-@Component
-class HomeScreenComponent {
-
-    @Provides
-    fun homeScreenModule(): HomeScreenDI.HomeScreenModule = HomeScreenDI.HomeScreenModule()
-
-}
+@Subcomponent( modules = arrayOf(HomeScreenDI.HomeScreenModule::class))
+interface HomeScreenComponent: MembersInjector<HomeScreen>

@@ -18,9 +18,9 @@ import rx.Completable
 open class DefaultRouterExecutor : RouterTransitionExecutor {
 
     override fun createLifeTransition(context: Context, containerView: ViewGroup,
-                                      keyIn: Uri, savedState: Bundle?, transitionIn: RouteTransition?,
+                                      keyIn: Uri, transitionIn: RouteTransition?,
                                       keyOut: Uri?, transitionOut: RouteTransition?,
-                                      inLife: Life, inData: Bundle?,
+                                      inLife: Life, inData: Bundle?, savedState: Bundle?,
                                       outLife: Life?): Completable {
         return Completable.create {
             tearDown(outLife, containerView)

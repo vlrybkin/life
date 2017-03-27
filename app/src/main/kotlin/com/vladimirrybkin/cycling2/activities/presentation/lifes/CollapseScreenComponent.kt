@@ -1,19 +1,14 @@
 package com.vladimirrybkin.cycling2.activities.presentation.lifes
 
+import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.collapse.CollapseScreen
 import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.collapse.CollapseScreenDI
-import io.michaelrocks.lightsaber.Component
-import io.michaelrocks.lightsaber.Provides
+import dagger.MembersInjector
+import dagger.Subcomponent
 
 /**
  * The collapse screen component.
  *
  * @author Vladimir Rybkin
  */
-@Component
-class CollapseScreenComponent {
-
-    @Provides
-    fun collapseScreenModule(): CollapseScreenDI.CollapseScreenModule =
-            CollapseScreenDI.CollapseScreenModule()
-
-}
+@Subcomponent( modules = arrayOf(CollapseScreenDI.CollapseScreenModule::class))
+interface CollapseScreenComponent: MembersInjector<CollapseScreen>

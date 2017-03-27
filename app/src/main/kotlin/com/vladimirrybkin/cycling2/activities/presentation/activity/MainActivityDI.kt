@@ -1,18 +1,16 @@
 package com.vladimirrybkin.cycling2.activities.presentation.activity
 
 import android.app.Activity
-import android.support.v7.app.AppCompatActivity
-import com.vladimirrybkin.cycling2.activities.presentation.app.MainApplicationDI
-import io.michaelrocks.lightsaber.Component
-import io.michaelrocks.lightsaber.Module
-import io.michaelrocks.lightsaber.Provides
+import dagger.Module
+import dagger.Provides
+import dagger.Subcomponent
 
 /**
  * Activity DI classes.
  *
  * @author Vladimir Rybkin
  */
-class MainActivityDI {
+interface MainActivityDI {
 
     companion object {
 
@@ -20,13 +18,13 @@ class MainActivityDI {
 
     }
 
-    @Component(parents = arrayOf(MainApplicationDI.MainApplicationComponent::class))
-    class MainActivityComponent(val activity: AppCompatActivity) {
+    @Subcomponent(modules = arrayOf(MainActivityModule::class))
+    interface MainActivityComponent {
 
-        @Provides
-        fun provideMainActivityModule(): MainActivityModule {
-            return MainActivityModule(activity)
-        }
+        fun createMainActivityLifeComponent(
+                activityLifeComponent: MainActivityLifeDI.MainActivityLifeModule,
+                routeModule: MainActivityLifeDI.MainActivityRouteModule
+        ): MainActivityLifeDI.MainActivityLifeComponent
 
     }
 

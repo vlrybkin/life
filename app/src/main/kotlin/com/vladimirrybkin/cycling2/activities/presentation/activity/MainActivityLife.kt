@@ -13,7 +13,7 @@ import com.vladimirrybkin.lib_framework.R
 import com.vladimirrybkin.lib_framework.domain.di.life.DILife
 import com.vladimirrybkin.lib_framework.presentation.life.ParentLayout
 import com.vladimirrybkin.lib_framework.presentation.view.compound.sidemenu.SidemenuOwner
-import io.michaelrocks.lightsaber.Injector
+import dagger.MembersInjector
 import rx.Subscriber
 import rx.android.schedulers.AndroidSchedulers
 import rx.subscriptions.Subscriptions
@@ -26,7 +26,8 @@ import javax.inject.Inject
  */
 @ParentLayout(layoutId = R.layout.drawer)
 class MainActivityLife(val inject: (MainActivityLifeDI.MainActivityLifeModule,
-                                    MainActivityLifeDI.MainActivityRouteModule) -> Injector) : DILife() {
+                                    MainActivityLifeDI.MainActivityRouteModule) ->
+        MembersInjector<MainActivityLife>) : DILife() {
 
     companion object {
         const val EXTRA_ROUTER = "MainActivityLife_EXTRA_ROUTER"
@@ -38,7 +39,7 @@ class MainActivityLife(val inject: (MainActivityLifeDI.MainActivityLifeModule,
     @Inject
     lateinit var sidemenuOwner: SidemenuOwner
 
-    @Inject
+    @field:[Inject MainActivityLifeDI.InitialRoute]
     lateinit var initialRoute: UriRoute
 
     @Inject

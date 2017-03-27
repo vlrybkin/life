@@ -8,5 +8,5 @@ import javax.inject.Qualifier
  * @author Vladimir Rybkin
  */
 @Qualifier
-@kotlin.annotation.Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.RUNTIME)
 annotation class RouteBack

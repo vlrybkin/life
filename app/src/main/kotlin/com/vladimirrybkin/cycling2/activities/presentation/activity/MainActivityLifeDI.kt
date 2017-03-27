@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import com.vladimirrybkin.cycling2.activities.R
 import com.vladimirrybkin.cycling2.activities.presentation.lifes.CollapseScreenComponent
 import com.vladimirrybkin.cycling2.activities.presentation.lifes.HomeScreenComponent
+import com.vladimirrybkin.cycling2.activities.presentation.lifes.RoutingModule
 import com.vladimirrybkin.cycling2.activities.presentation.lifes.SplashScreenComponent
 import com.vladimirrybkin.cycling2.lib_app.domain.bootstrap.BootstrapProvider
 import com.vladimirrybkin.cycling2.lib_app.domain.preconditions.LifePreconditions
@@ -37,17 +38,21 @@ import com.vladimirrybkin.lib_framework.presentation.view.navigation.NavigationP
 import com.vladimirrybkin.lib_framework.presentation.view.navigation.NavigationViewWrapper
 import com.vladimirrybkin.lib_router_simple_view.domain.route.DefaultRouterExecutor
 import com.vladimirrybkin.lib_router_simple_view.domain.route.SimpleViewUriRouter
-import io.michaelrocks.lightsaber.*
+import dagger.MembersInjector
+import dagger.Module
+import dagger.Provides
+import dagger.Subcomponent
 import rx.Completable
 import rx.Subscriber
-import javax.inject.Singleton
+import javax.inject.Qualifier
+import javax.inject.Scope
 
 /**
  * Activity life cycle DI classes.
  *
  * @author Vladimir Rybkin
  */
-class MainActivityLifeDI {
+interface MainActivityLifeDI {
 
     companion object {
 
@@ -55,22 +60,24 @@ class MainActivityLifeDI {
 
     }
 
-    @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
+    @Scope
+    @Retention(AnnotationRetention.RUNTIME)
+    annotation class ActivityLifeScope
+
+    @Qualifier
+    @Retention(AnnotationRetention.RUNTIME)
     annotation class InitialRoute
 
-    @Component(parents = arrayOf(MainActivityDI.MainActivityComponent::class))
-    class MainActivityLifeComponent(val lifeModule: MainActivityLifeModule,
-                                    val routeModule: MainActivityRouteModule) {
+    @Subcomponent(modules = arrayOf(MainActivityLifeModule::class, MainActivityRouteModule::class))
+    @ActivityLifeScope
+    interface MainActivityLifeComponent: MembersInjector<MainActivityLife> {
 
-        @Provides
-        fun provideMainActivityLifeModule(): MainActivityLifeModule {
-            return lifeModule
-        }
+        fun createHomeScreenComponent(homeScreenModule: HomeScreenDI.HomeScreenModule): HomeScreenComponent
 
-        @Provides
-        fun provideMainActivityRouteModule(): MainActivityRouteModule {
-            return routeModule
-        }
+        fun createSplashScreenComponent(splashScreenModule: SplashScreenDI.SplashScreenModule,
+                                        routingModule: RoutingModule): SplashScreenComponent
+
+        fun createCollapseScreenComponent(collapseScreenModule: CollapseScreenDI.CollapseScreenModule): CollapseScreenComponent
 
     }
 
@@ -84,26 +91,26 @@ class MainActivityLifeDI {
         @Provides
         fun provideSidemenuController(sidemenuOwner: SidemenuOwner): SidemenuController = sidemenuOwner
 
-        @Provides @Singleton
+        @Provides @ActivityLifeScope
         fun provideSidemenuOwner(drawerPresenter: DrawerContract.Presenter,
                                  navigationPresenter: NavigationContract.Presenter):
                 SidemenuOwner = SidemenuOwner(drawerPresenter, navigationPresenter)
 
-        @Provides @Singleton
+        @Provides @ActivityLifeScope
         fun provideDrawerPresenter(activity: Activity): DrawerContract.Presenter {
             val drawerPresenter = DrawerPresenter()
             DrawerViewWrapper(activity, drawerLayout, drawerPresenter)
             return drawerPresenter
         }
 
-        @Provides @Singleton
+        @Provides @ActivityLifeScope
         fun provideNavigationPresenter(): NavigationContract.Presenter {
             val navigationPresenter = NavigationPresenter(R.menu.sidebar_menu)
             NavigationViewWrapper(navigationView, navigationPresenter)
             return navigationPresenter
         }
 
-        @Provides @Singleton
+        @Provides @ActivityLifeScope
         fun provideSidemenuSubscriber(
                 @HomeScreenDI.HomeScreenQualifier homeRoute: UriRoute,
                 @CollapseScreenDI.CollapseScreenQualifier collapseRoute: UriRoute
@@ -125,8 +132,7 @@ class MainActivityLifeDI {
     class MainActivityRouteModule(val context: Context,
                                   val screenContainer: ViewGroup) {
 
-        @Provides
-        @Singleton
+        @Provides @ActivityLifeScope
         fun provideSimpleViewRoute(bootstrapProvider: BootstrapProvider,
                                    @SplashScreenDI.SplashScreenQualifier splashScreenKey: Uri,
                                    @SplashScreenDI.SplashScreenQualifier splashScreenProducer: UriLifeProducer,
@@ -139,9 +145,9 @@ class MainActivityLifeDI {
                             it.replaceDefaultExecutor(object : DefaultRouterExecutor() {
                                 override fun createPreTransition(
                                         context: Context,
-                                        keyIn: Uri, savedState: Bundle?,
+                                        keyIn: Uri,
                                         keyOut: Uri?,
-                                        inLife: Life, inData: Bundle?,
+                                        inLife: Life, inData: Bundle?, savedState: Bundle?,
                                         outLife: Life?): Completable {
 
                                     return Completable.create(LifePreconditions(
@@ -180,21 +186,19 @@ class MainActivityLifeDI {
                             addProducer(collapseScreenKey, collapseProducer)
                         }
 
-        @Provides
-        @InitialRoute
+        @Provides @MainActivityLifeDI.InitialRoute
         fun provideInitialRoute(@HomeScreenDI.HomeScreenQualifier homeScreenRoute: UriRoute): UriRoute
                 = homeScreenRoute
 
-        @Provides
-        @Singleton
+        @Provides @ActivityLifeScope
         @HomeScreenDI.HomeScreenQualifier
-        fun provideHomeScreenLifeProducers(): UriLifeProducer {
-            val activityLifeInjector = context.getSystemService(COMPONENT_NAME) as Injector
+        fun provideHomeScreenLifeProducer(): UriLifeProducer {
+            val activityLifeComponent = context.getSystemService(COMPONENT_NAME)
+                    as MainActivityLifeDI.MainActivityLifeComponent
             return object : UriLifeProducer {
                 override fun produceLife(key: Uri, data: Bundle?): Life? {
                     return HomeScreen({
-                        Lightsaber.get().createChildInjector(activityLifeInjector,
-                                HomeScreenComponent())
+                        activityLifeComponent.createHomeScreenComponent(HomeScreenDI.HomeScreenModule())
                     })
                 }
             }
@@ -206,16 +210,15 @@ class MainActivityLifeDI {
                                    router: UriRouter): UriRoute =
                 UriRoute(homeScreenKey, router::replaceTop)
 
-        @Provides
-        @Singleton
+        @Provides @ActivityLifeScope
         @CollapseScreenDI.CollapseScreenQualifier
-        fun provideCollapseScreenLifeProducers(): UriLifeProducer {
-            val activityLifeInjector = context.getSystemService(COMPONENT_NAME) as Injector
+        fun provideCollapseScreenLifeProducer(): UriLifeProducer {
+            val activityLifeComponent = context.getSystemService(COMPONENT_NAME)
+                    as MainActivityLifeDI.MainActivityLifeComponent
             return object : UriLifeProducer {
                 override fun produceLife(key: Uri, data: Bundle?): Life? {
                     return CollapseScreen({
-                        Lightsaber.get().createChildInjector(activityLifeInjector,
-                                CollapseScreenComponent())
+                        activityLifeComponent.createCollapseScreenComponent(CollapseScreenDI.CollapseScreenModule())
                     })
                 }
             }
@@ -227,16 +230,16 @@ class MainActivityLifeDI {
                                        router: UriRouter): UriRoute =
                 UriRoute(collapseScreenKey, router::replaceTop)
 
-        @Provides
-        @Singleton
+        @Provides @ActivityLifeScope
         @SplashScreenDI.SplashScreenQualifier
-        fun provideSplashScreenLifeProducers(): UriLifeProducer {
-            val activityLifeInjector = context.getSystemService(COMPONENT_NAME) as Injector
+        fun provideSplashScreenLifeProducer(): UriLifeProducer {
+            val activityLifeComponent = context.getSystemService(COMPONENT_NAME)
+                    as MainActivityLifeDI.MainActivityLifeComponent
             return object : UriLifeProducer {
                 override fun produceLife(key: Uri, data: Bundle?): Life? {
                     return SplashScreen({
-                        Lightsaber.get().createChildInjector(activityLifeInjector,
-                                SplashScreenComponent())
+                        activityLifeComponent.createSplashScreenComponent(SplashScreenDI.SplashScreenModule(),
+                                RoutingModule())
                     })
                 }
             }
@@ -247,6 +250,6 @@ class MainActivityLifeDI {
         fun provideSplashScreenRoute(@SplashScreenDI.SplashScreenQualifier splashScreenKey: Uri,
                                      router: UriRouter): UriRoute =
                 UriRoute(splashScreenKey, router::replaceTop)
-
     }
+
 }

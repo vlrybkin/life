@@ -1,6 +1,6 @@
 package com.vladimirrybkin.cycling2.lib_app.presentation.lifes.collapse
 
-import io.michaelrocks.lightsaber.Module
+import dagger.Module
 import javax.inject.Qualifier
 
 /**
@@ -11,9 +11,8 @@ import javax.inject.Qualifier
 interface CollapseScreenDI {
 
     @Qualifier
-    @kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
+    @Retention(AnnotationRetention.RUNTIME)
     annotation class CollapseScreenQualifier(val value: String = "")
-
 
     @Module
     class CollapseScreenModule {

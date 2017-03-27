@@ -5,5 +5,5 @@ package com.vladimirrybkin.cycling2.lib_app.presentation.lifes
  *
  * @author Vladimir Rybkin
  */
-@kotlin.annotation.Retention(AnnotationRetention.SOURCE)
+@kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
 annotation class LifeKey(val value: String)

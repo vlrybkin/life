@@ -7,8 +7,8 @@ import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.home.HomeScreen
 import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.home.HomeScreenDI
 import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.splash.SplashScreen
 import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.splash.SplashScreenDI
-import io.michaelrocks.lightsaber.Module
-import io.michaelrocks.lightsaber.Provides
+import dagger.Module
+import dagger.Provides
 
 /**
  * Life cycles keys.
