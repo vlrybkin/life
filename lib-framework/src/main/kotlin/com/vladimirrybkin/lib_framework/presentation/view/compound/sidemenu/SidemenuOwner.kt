@@ -1,6 +1,6 @@
 package com.vladimirrybkin.lib_framework.presentation.view.compound.sidemenu
 
-import android.view.MenuItem
+import android.net.Uri
 import com.vladimirrybkin.lib_framework.presentation.view.drawer.DrawerContract
 import com.vladimirrybkin.lib_framework.presentation.view.drawer.DrawerController
 import com.vladimirrybkin.lib_framework.presentation.view.drawer.DrawerStateObservable
@@ -23,7 +23,7 @@ class SidemenuOwner(private val drawerPresenter: DrawerContract.Presenter,
         NavigationController by navigationPresenter,
         NavigationItemSelectedObservable by navigationPresenter {
 
-    override fun observeMenuItem(): Observable<MenuItem> =
+    override fun observeMenuItem(): Observable<Uri> =
             navigationPresenter.observeMenuItem()
                     .doOnNext {
                         drawerPresenter.close()

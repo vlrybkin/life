@@ -27,10 +27,8 @@ interface ActivityLifeDispatcher {
         val initialState = intentToInitialState(intent)
         life.onCreate(initialState)
         life.onCreateView(viewContainer, initialState)
-    }
 
-    fun onActivityRestoreInstanceState(savedState: Bundle) {
-        life.onRestoreState(savedState)
+        if (savedState != null) life.onRestoreState(savedState)
     }
 
     fun onActivityStart() = life.onStart()

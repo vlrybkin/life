@@ -2,6 +2,7 @@ package com.vladimirrybkin.cycling2.activities.presentation.app
 
 import android.app.Application
 import android.content.Context
+import android.widget.Toast
 import com.vladimirrybkin.cycling2.lib_app.data.model.Bootstrap
 import com.vladimirrybkin.cycling2.lib_app.domain.bootstrap.BootstrapConsumer
 import com.vladimirrybkin.cycling2.lib_app.domain.bootstrap.BootstrapProvider
@@ -34,6 +35,11 @@ class MainApplication : Application(), BootstrapProvider, BootstrapConsumer {
 
     override fun consumeBootstrap(bootstrap: Bootstrap) {
         this.bootstrap = bootstrap
+    }
+
+    override fun clearBootstrap() {
+        bootstrap = null
+        Toast.makeText(contextWrapper, "Bootstrap removed", Toast.LENGTH_SHORT).show()
     }
 
 }

@@ -24,29 +24,32 @@ open class SimpleViewUriRouter(val containerView: ViewGroup) : UriRouter() {
 
     private var defaultExecutor: RouterTransitionExecutor = DefaultRouterExecutor()
 
+    private var currentState: RouterState? = null
     private var currentLife: Life? = null
-    private var currentKey: Uri? = null
     private var currentTransition: Subscription = Subscriptions.unsubscribed()
+    private var nextState: RouterState? = null
 
-    private var nextKey: Uri? = null
-    private var nextData: Bundle? = null
-    private var nextTransitionIn: RouteTransition? = null
-    private var nextTransitionOut: RouteTransition? = null
-
-    override fun push(key: Uri, data: Bundle?, transitionIn: RouteTransition?,
-                      transitionOut: RouteTransition?) {
-        // stack is not supported, just forward the call
-        replaceTop(key, data, transitionIn, transitionOut)
+    companion object {
+        private const val EXTRA_KEY = "SimpleViewUriRouter.EXTRA_KEY"
+        private const val EXTRA_DATA = "SimpleViewUriRouter.EXTRA_DATA"
+        private const val EXTRA_TRANSITION_IN = "SimpleViewUriRouter.EXTRA_TRANSITION_IN"
+        private const val EXTRA_TRANSITION_OUT = "SimpleViewUriRouter.EXTRA_TRANSITION_OUT"
+        private const val EXTRA_SAVED_DATA = "SimpleViewUriRouter.EXTRA_SAVED_DATA"
     }
 
-    override fun pop(key: Uri, data: Bundle?, transitionIn: RouteTransition?,
-                     transitionOut: RouteTransition?) {
+    override fun push(key: Uri, data: Bundle?, savedState: Bundle?, transitionIn: RouteTransition?,
+                      transitionOut: RouteTransition?) {
+        // stack is not supported, just forward the call
+        replaceTop(key, data, savedState, transitionIn, transitionOut)
+    }
+
+    override fun pop(key: Uri, transitionOut: RouteTransition?) {
         // stack is not supported, do nothing
     }
 
-    override fun replaceTop(key: Uri, data: Bundle?, transitionIn: RouteTransition?,
+    override fun replaceTop(key: Uri, data: Bundle?, savedState: Bundle?, transitionIn: RouteTransition?,
                             transitionOut: RouteTransition?) =
-            setup(key, data = data, savedState = null,
+            setup(key, data = data, savedState = savedState,
                     transitionIn = transitionIn, transitionOut = transitionOut, restored = false)
 
     private fun setup(key: Uri, data: Bundle?, savedState: Bundle?,
@@ -55,7 +58,7 @@ open class SimpleViewUriRouter(val containerView: ViewGroup) : UriRouter() {
         if (destroyed) return
 
         if (currentTransition.isUnsubscribed) {
-            val executor = getExecutor(key, currentKey, transitionIn, transitionOut, restored) ?:
+            val executor = getExecutor(key, currentState?.key, transitionIn, transitionOut, restored) ?:
                     defaultExecutor
 
             val inLife = produceLife(key, data) ?:
@@ -65,66 +68,78 @@ open class SimpleViewUriRouter(val containerView: ViewGroup) : UriRouter() {
             currentTransition = Completable.concat(
                     executor.createPreTransition(containerView.context,
                             key,
-                            currentKey,
+                            currentState?.key,
                             inLife, data, savedState, outLife),
                     executor.createLifeTransition(containerView.context,
                             containerView,
                             key, transitionIn,
-                            currentKey, transitionOut,
+                            currentState?.key, transitionOut,
                             inLife, data, savedState, outLife),
                     executor.createPostTransition(containerView.context,
                             key,
-                            currentKey,
+                            currentState?.key,
                             inLife, data, savedState, outLife)
             )
                     .subscribeOn(AndroidSchedulers.mainThread())
                     .doOnCompleted {
                         currentLife = inLife
-                        currentKey = key
+                        currentState = RouterState(key, data, transitionIn, transitionOut)
                     }
                     .doOnUnsubscribe {
                         startNextIfRequired()
                     }
                     .subscribe({ currentTransition.unsubscribe() },
                             { currentTransition.unsubscribe() })
-        } else {
-            nextKey = key
-            nextData = data
-            nextTransitionIn = transitionIn
-            nextTransitionOut = nextTransitionOut
-        }
+        } else
+            nextState = RouterState(key, data, transitionIn, transitionOut)
     }
 
     private fun startNextIfRequired() {
-        val localNextKey = nextKey
-        if (localNextKey != null) {
-            val localNextData = nextData
-            val localNextTransitionIn = nextTransitionIn
-            val localNextTransitionOut = nextTransitionOut
-
-            nextKey = null
-            nextData = null
-            nextTransitionIn = null
-            nextTransitionOut = null
-
+        val localNextState = nextState
+        if (localNextState != null) {
+            val localNextKey = localNextState.key
+            val localNextData = localNextState.data
+            val localNextTransitionIn = localNextState.transitionIn
+            val localNextTransitionOut = localNextState.transitionOut
+            nextState = null
             setup(localNextKey, localNextData, null, localNextTransitionIn,
                     localNextTransitionOut, false)
         }
     }
 
-    override fun restartStack(key: Uri, data: Bundle?, transitionIn: RouteTransition?,
+    override fun restartStack(key: Uri, data: Bundle?, savedState: Bundle?, transitionIn: RouteTransition?,
                               transitionOut: RouteTransition?) {
         // stack is not supported, just forward the call
-        replaceTop(key, data, transitionIn, transitionOut)
+        replaceTop(key, data, savedState, transitionIn, transitionOut)
     }
 
     override fun save(outState: Bundle): Bundle {
-        // TODO
+        val localState = currentState
+        val localLife = currentLife
+        if (localState != null && localLife != null) {
+            val savedLifeState = Bundle()
+            localLife.onSaveState(savedLifeState)
+
+            outState.putString(EXTRA_KEY, localState.key.toString())
+            outState.putBundle(EXTRA_DATA, localState.data)
+            outState.putBundle(EXTRA_TRANSITION_IN, localState.transitionIn?.toBundle())
+            outState.putBundle(EXTRA_TRANSITION_OUT, localState.transitionOut?.toBundle())
+            outState.putBundle(EXTRA_SAVED_DATA, savedLifeState)
+        }
+
         return outState
     }
 
     override fun restore(inState: Bundle) {
-        // TODO
+        val lifeKey = inState.getString(EXTRA_KEY)
+        if (lifeKey != null) {
+            val lifeKeyUri = Uri.parse(lifeKey)
+            val data = inState.getBundle(EXTRA_DATA)
+            val transitionIn: RouteTransition? = inState.getBundle(EXTRA_TRANSITION_IN)?.let(::RouteTransition)
+            val transitionOut: RouteTransition? = inState.getBundle(EXTRA_TRANSITION_OUT)?.let(::RouteTransition)
+            val savedState = inState.getBundle(EXTRA_SAVED_DATA)
+            setup(lifeKeyUri, data, savedState, transitionIn, transitionOut, restored = true)
+        }
     }
 
     override fun destroy() {
@@ -132,7 +147,7 @@ open class SimpleViewUriRouter(val containerView: ViewGroup) : UriRouter() {
         currentTransition.unsubscribe()
     }
 
-    override fun hasLife(): Boolean = currentKey != null || !currentTransition.isUnsubscribed
+    override fun hasLife(): Boolean = currentState != null || !currentTransition.isUnsubscribed
 
     fun addTransitionHandler(rule: UriRouterTransitionRule, executor: RouterTransitionExecutor)
             = transitionExecutors.add(Pair(rule, executor))

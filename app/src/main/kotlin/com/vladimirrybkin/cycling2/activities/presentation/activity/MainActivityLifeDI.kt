@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.widget.DrawerLayout
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.ViewGroup
 import com.vladimirrybkin.cycling2.activities.R
 import com.vladimirrybkin.cycling2.activities.presentation.lifes.CollapseScreenComponent
@@ -70,7 +69,7 @@ interface MainActivityLifeDI {
 
     @Subcomponent(modules = arrayOf(MainActivityLifeModule::class, MainActivityRouteModule::class))
     @ActivityLifeScope
-    interface MainActivityLifeComponent: MembersInjector<MainActivityLife> {
+    interface MainActivityLifeComponent : MembersInjector<MainActivityLife> {
 
         fun createHomeScreenComponent(homeScreenModule: HomeScreenDI.HomeScreenModule): HomeScreenComponent
 
@@ -104,23 +103,33 @@ interface MainActivityLifeDI {
         }
 
         @Provides @ActivityLifeScope
-        fun provideNavigationPresenter(): NavigationContract.Presenter {
-            val navigationPresenter = NavigationPresenter(R.menu.sidebar_menu)
+        fun provideNavigationPresenter(
+                @HomeScreenDI.HomeScreenQualifier homeScreenKey: Uri,
+                @CollapseScreenDI.CollapseScreenQualifier collapseScreenKey: Uri
+        ): NavigationContract.Presenter {
+            val navigationPresenter = NavigationPresenter(R.menu.sidebar_menu,
+                    mapOf(
+                            Pair(R.id.sidebar_home, homeScreenKey),
+                            Pair(R.id.sidebar_collapse_recycler, collapseScreenKey)
+                    )
+            )
             NavigationViewWrapper(navigationView, navigationPresenter)
             return navigationPresenter
         }
 
         @Provides @ActivityLifeScope
         fun provideSidemenuSubscriber(
+                @HomeScreenDI.HomeScreenQualifier homeScreenKey: Uri,
                 @HomeScreenDI.HomeScreenQualifier homeRoute: UriRoute,
+                @CollapseScreenDI.CollapseScreenQualifier collapseScreenKey: Uri,
                 @CollapseScreenDI.CollapseScreenQualifier collapseRoute: UriRoute
-        ): Subscriber<MenuItem> = object : Subscriber<MenuItem>() {
+        ): Subscriber<Uri> = object : Subscriber<Uri>() {
 
             override fun onError(e: Throwable?) = Unit
 
-            override fun onNext(item: MenuItem) = when (item.itemId) {
-                R.id.sidebar_home -> homeRoute.go()
-                R.id.sidebar_collapse_recycler -> collapseRoute.go()
+            override fun onNext(key: Uri) = when (key) {
+                homeScreenKey -> homeRoute.go()
+                collapseScreenKey -> collapseRoute.go()
                 else -> Unit
             }
 
@@ -134,6 +143,7 @@ interface MainActivityLifeDI {
 
         @Provides @ActivityLifeScope
         fun provideSimpleViewRoute(bootstrapProvider: BootstrapProvider,
+                                   sidemenuOwner: SidemenuOwner,
                                    @SplashScreenDI.SplashScreenQualifier splashScreenKey: Uri,
                                    @SplashScreenDI.SplashScreenQualifier splashScreenProducer: UriLifeProducer,
                                    @HomeScreenDI.HomeScreenQualifier homeScreenKey: Uri,
@@ -150,10 +160,18 @@ interface MainActivityLifeDI {
                                         inLife: Life, inData: Bundle?, savedState: Bundle?,
                                         outLife: Life?): Completable {
 
-                                    return Completable.create(LifePreconditions(
-                                            (inLife as Any).javaClass,
-                                            bootstrapProvider,
-                                            provideSplashScreenRoute(splashScreenKey, it)))
+                                    return Completable
+                                            .create(LifePreconditions(
+                                                    (inLife as Any).javaClass,
+                                                    bootstrapProvider,
+                                                    provideSplashScreenRoute(splashScreenKey, it).apply {
+                                                        inState(
+                                                            SplashScreenDI.State(keyIn, inData, savedState).toBundle()
+                                                        )
+                                                    }
+                                            ))
+                                            .andThen(Completable.create(MainActivityRouterPreconditions(keyIn,
+                                                    sidemenuOwner)))
                                 }
 
                                 override fun onRootFrameReady(inLife: Life, rootFrame: ViewGroup): ViewGroup {
@@ -174,6 +192,14 @@ interface MainActivityLifeDI {
                                     }
                                 }
 
+                                override fun createPostTransition(context: Context,
+                                                                  keyIn: Uri,
+                                                                  keyOut: Uri?,
+                                                                  inLife: Life, inData: Bundle?, savedState: Bundle?,
+                                                                  outLife: Life?): Completable {
+                                    return Completable.create(
+                                            MainActivityRouterPostconditions(sidemenuOwner, inLife))
+                                }
                             })
                         }
                         .apply {
@@ -237,8 +263,8 @@ interface MainActivityLifeDI {
                     as MainActivityLifeDI.MainActivityLifeComponent
             return object : UriLifeProducer {
                 override fun produceLife(key: Uri, data: Bundle?): Life? {
-                    return SplashScreen({
-                        activityLifeComponent.createSplashScreenComponent(SplashScreenDI.SplashScreenModule(),
+                    return SplashScreen({ screenModule ->
+                        activityLifeComponent.createSplashScreenComponent(screenModule,
                                 RoutingModule())
                     })
                 }

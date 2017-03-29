@@ -1,31 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.vladimirrybkin.cycling2.lib_app.presentation.lifes.home.HomeScreenView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="false">
+    android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true"
-        android:layout_alignParentTop="true"
-        android:background="#200000FF"/>
+        style="@style/ToolbarStyle"/>
 
-    <TextView android:id="@+id/home"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="32sp"
-        android:layout_gravity="center"
-        android:layout_centerInParent="true"
-        android:text="HOME"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <TextView android:id="@+id/home_number"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="24sp"
-        android:layout_gravity="center"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/home"/>
+        <TextView android:id="@+id/home"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="32sp"
+            android:layout_gravity="center"
+            android:layout_centerInParent="true"
+            android:text="HOME"/>
 
-</RelativeLayout>
+        <TextView android:id="@+id/home_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            android:layout_gravity="center"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/home"/>
+
+        <Button android:id="@+id/home_clear_bootstrap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/home_number"
+            android:layout_marginTop="32dp"
+            android:text="CLEAR THE BOOTSTRAP"/>
+
+    </RelativeLayout>
+
+</com.vladimirrybkin.cycling2.lib_app.presentation.lifes.home.HomeScreenView>

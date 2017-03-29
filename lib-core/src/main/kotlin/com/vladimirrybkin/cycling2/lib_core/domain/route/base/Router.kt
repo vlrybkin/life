@@ -15,21 +15,22 @@ interface Router<in K> {
 
     fun push(key: K,
              data: Bundle?,
+             savedState: Bundle?,
              transitionIn: RouteTransition?,
              transitionOut: RouteTransition?)
 
     fun pop(key: K,
-            data: Bundle?,
-            transitionIn: RouteTransition?,
             transitionOut: RouteTransition?)
 
     fun replaceTop(key: K,
                    data: Bundle?,
+                   savedState: Bundle?,
                    transitionIn: RouteTransition?,
                    transitionOut: RouteTransition?)
 
     fun restartStack(key: K,
                      data: Bundle?,
+                     savedState: Bundle?,
                      transitionIn: RouteTransition?,
                      transitionOut: RouteTransition?)
 

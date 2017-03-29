@@ -1,5 +1,10 @@
 package com.vladimirrybkin.lib_framework.presentation.view.navigation
 
+import android.support.annotation.IdRes
+import android.support.annotation.MenuRes
+import android.view.MenuItem
+import rx.Observable
+
 /**
  * Navigation view/presenter contract.
  *
@@ -7,9 +12,15 @@ package com.vladimirrybkin.lib_framework.presentation.view.navigation
  */
 interface NavigationContract {
 
-    interface View : NavigationItemSelectedObservable, NavigationController {
+    interface View {
 
         fun inflated(): Boolean
+
+        fun observeMenuItem(): Observable<MenuItem>
+
+        fun inflateMenu(@MenuRes resId: Int): Unit?
+
+        fun selectItem(@IdRes id: Int): Unit?
     }
 
     interface Presenter : NavigationItemSelectedObservable, NavigationController {

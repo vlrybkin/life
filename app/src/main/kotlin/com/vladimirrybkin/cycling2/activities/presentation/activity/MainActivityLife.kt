@@ -1,11 +1,12 @@
 package com.vladimirrybkin.cycling2.activities.presentation.activity
 
 import android.content.Context
+import android.content.res.Configuration
+import android.net.Uri
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.widget.DrawerLayout
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.ViewGroup
 import com.vladimirrybkin.cycling2.lib_core.domain.route.uri.UriRoute
 import com.vladimirrybkin.cycling2.lib_core.domain.route.uri.UriRouter
@@ -43,7 +44,7 @@ class MainActivityLife(val inject: (MainActivityLifeDI.MainActivityLifeModule,
     lateinit var initialRoute: UriRoute
 
     @Inject
-    lateinit var sidemenuSubscriber: Subscriber<MenuItem>
+    lateinit var sidemenuSubscriber: Subscriber<Uri>
 
     private var menuSubscription = Subscriptions.unsubscribed()
 
@@ -73,6 +74,7 @@ class MainActivityLife(val inject: (MainActivityLifeDI.MainActivityLifeModule,
     override fun onRestoreState(savedState: Bundle) {
         super.onRestoreState(savedState)
         router.restore(savedState.getBundle(EXTRA_ROUTER))
+        sidemenuOwner.syncState()
     }
 
     override fun onStart() {
@@ -88,6 +90,11 @@ class MainActivityLife(val inject: (MainActivityLifeDI.MainActivityLifeModule,
     override fun onBackPressed(): Boolean {
         if (sidemenuOwner.onBackPressed() || router.backPressed()) return true
         else return super.onBackPressed()
+    }
+
+    override fun onConfigurationChanged(config: Configuration) {
+        super.onConfigurationChanged(config)
+        sidemenuOwner.onConfigurationChanged(config)
     }
 
     override fun onDestroyView() {

@@ -8,13 +8,14 @@
 
     <FrameLayout android:id="@+id/screen_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="false"/>
 
     <FrameLayout
         android:id="@+id/navigation_container"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:fitsSystemWindows="true"/>
+        android:fitsSystemWindows="false"/>
 
 </android.support.v4.widget.DrawerLayout>

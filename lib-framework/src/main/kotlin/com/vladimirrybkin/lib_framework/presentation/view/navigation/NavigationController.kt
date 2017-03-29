@@ -1,7 +1,6 @@
 package com.vladimirrybkin.lib_framework.presentation.view.navigation
 
-import android.support.annotation.IdRes
-import android.support.annotation.MenuRes
+import android.net.Uri
 
 /**
  * A navigation controller interface.
@@ -10,8 +9,6 @@ import android.support.annotation.MenuRes
  */
 interface NavigationController {
 
-    fun inflateMenu(@MenuRes resId: Int): Unit?
-
-    fun selectItem(@IdRes id: Int): Unit?
+    fun selectItem(key: Uri): Unit?
 
 }

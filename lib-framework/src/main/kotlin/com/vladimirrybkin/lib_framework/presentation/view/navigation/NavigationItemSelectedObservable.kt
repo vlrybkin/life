@@ -1,6 +1,6 @@
 package com.vladimirrybkin.lib_framework.presentation.view.navigation
 
-import android.view.MenuItem
+import android.net.Uri
 import rx.Observable
 
 /**
@@ -10,7 +10,6 @@ import rx.Observable
  */
 interface NavigationItemSelectedObservable {
 
-
-    fun observeMenuItem(): Observable<MenuItem>
+    fun observeMenuItem(): Observable<Uri>
 
 }

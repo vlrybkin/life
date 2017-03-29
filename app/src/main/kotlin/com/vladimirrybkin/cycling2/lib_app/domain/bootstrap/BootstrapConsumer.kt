@@ -11,4 +11,6 @@ interface BootstrapConsumer {
 
     fun consumeBootstrap(bootstrap: Bootstrap)
 
+    fun clearBootstrap()
+
 }

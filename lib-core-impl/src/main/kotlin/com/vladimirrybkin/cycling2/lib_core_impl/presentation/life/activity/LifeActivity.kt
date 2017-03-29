@@ -50,13 +50,6 @@ abstract class LifeActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        if (!isFinishing) {
-            lifeCycleDispatcher.onActivityRestoreInstanceState(savedInstanceState)
-        }
-    }
-
     override fun onStart() {
         super.onStart()
         if (!isFinishing) {

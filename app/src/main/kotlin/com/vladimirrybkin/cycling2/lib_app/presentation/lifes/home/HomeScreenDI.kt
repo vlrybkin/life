@@ -1,6 +1,7 @@
 package com.vladimirrybkin.cycling2.lib_app.presentation.lifes.home
 
 import dagger.Module
+import dagger.Provides
 import javax.inject.Qualifier
 
 /**
@@ -16,6 +17,9 @@ interface HomeScreenDI {
 
     @Module
     class HomeScreenModule {
+
+        @Provides
+        fun providePresenter(presenter: HomeScreenPresenter): HomeScreenContract.Presenter = presenter
 
     }
 
