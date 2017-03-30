@@ -2,6 +2,7 @@ package com.vladimirrybkin.cycling2.lib_core.domain.route.base
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 
 /**
@@ -20,6 +21,9 @@ interface Router<in K> {
              transitionOut: RouteTransition?)
 
     fun pop(key: K,
+            data: Bundle?,
+            savedState: Bundle?,
+            transitionIn: RouteTransition?,
             transitionOut: RouteTransition?)
 
     fun replaceTop(key: K,
@@ -39,6 +43,10 @@ interface Router<in K> {
     fun restore(inState: Bundle)
 
     fun backPressed(): Boolean = false
+
+    fun onCreateOptionsMenu(menu: Menu): Boolean = false
+
+    fun onPrepareOptionsMenu(menu: Menu): Boolean = false
 
     fun onOptionsItemSelected(item: MenuItem): Boolean = false
 

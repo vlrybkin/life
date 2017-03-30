@@ -1,5 +1,6 @@
 package com.vladimirrybkin.cycling2.activities.presentation.activity
 
+import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
 import android.net.Uri
@@ -7,6 +8,8 @@ import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.widget.DrawerLayout
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.view.ViewGroup
 import com.vladimirrybkin.cycling2.lib_core.domain.route.uri.UriRoute
 import com.vladimirrybkin.cycling2.lib_core.domain.route.uri.UriRouter
@@ -17,7 +20,7 @@ import com.vladimirrybkin.lib_framework.presentation.view.compound.sidemenu.Side
 import dagger.MembersInjector
 import rx.Subscriber
 import rx.android.schedulers.AndroidSchedulers
-import rx.subscriptions.Subscriptions
+import rx.subscriptions.CompositeSubscription
 import javax.inject.Inject
 
 /**
@@ -28,11 +31,14 @@ import javax.inject.Inject
 @ParentLayout(layoutId = R.layout.drawer)
 class MainActivityLife(val inject: (MainActivityLifeDI.MainActivityLifeModule,
                                     MainActivityLifeDI.MainActivityRouteModule) ->
-        MembersInjector<MainActivityLife>) : DILife() {
+MembersInjector<MainActivityLife>) : DILife() {
 
     companion object {
         const val EXTRA_ROUTER = "MainActivityLife_EXTRA_ROUTER"
     }
+
+    @Inject
+    lateinit var activity: Activity
 
     @Inject
     lateinit var router: UriRouter
@@ -46,7 +52,7 @@ class MainActivityLife(val inject: (MainActivityLifeDI.MainActivityLifeModule,
     @Inject
     lateinit var sidemenuSubscriber: Subscriber<Uri>
 
-    private var menuSubscription = Subscriptions.unsubscribed()
+    private var subscriptions = CompositeSubscription()
 
     override fun onCreateView(parentViewGroup: ViewGroup, inState: Bundle?) {
         super.onCreateView(parentViewGroup, inState)
@@ -66,9 +72,15 @@ class MainActivityLife(val inject: (MainActivityLifeDI.MainActivityLifeModule,
         addComponent(MainActivityLifeDI.COMPONENT_NAME, injector)
         injector.injectMembers(this)
 
-        menuSubscription = sidemenuOwner.observeMenuItem()
+        subscriptions.add(sidemenuOwner.observeMenuItem()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(sidemenuSubscriber)
+                .subscribe(sidemenuSubscriber))
+
+        subscriptions.add(sidemenuOwner.observeOpenState()
+                .doOnNext {
+                    activity.invalidateOptionsMenu()
+                }
+                .subscribe())
     }
 
     override fun onRestoreState(savedState: Bundle) {
@@ -97,15 +109,28 @@ class MainActivityLife(val inject: (MainActivityLifeDI.MainActivityLifeModule,
         sidemenuOwner.onConfigurationChanged(config)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        return router.onCreateOptionsMenu(menu) || super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        return router.onPrepareOptionsMenu(menu) || super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return sidemenuOwner.onOptionsItemSelected(item) ||
+                router.onOptionsItemSelected(item) ||
+                super.onOptionsItemSelected(item)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
-        menuSubscription.unsubscribe()
+        subscriptions.unsubscribe()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         router.destroy()
-        menuSubscription.unsubscribe()
     }
 
 }

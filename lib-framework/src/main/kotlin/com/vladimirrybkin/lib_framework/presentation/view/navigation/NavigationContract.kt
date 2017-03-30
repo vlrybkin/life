@@ -18,9 +18,9 @@ interface NavigationContract {
 
         fun observeMenuItem(): Observable<MenuItem>
 
-        fun inflateMenu(@MenuRes resId: Int): Unit?
+        fun inflateMenu(@MenuRes resId: Int)
 
-        fun selectItem(@IdRes id: Int): Unit?
+        fun selectItem(@IdRes id: Int)
     }
 
     interface Presenter : NavigationItemSelectedObservable, NavigationController {

@@ -36,8 +36,7 @@ open class DefaultRouterExecutor : RouterTransitionExecutor {
         inLife.attachBaseContext(context)
         inLife.onCreate(inData)
 
-        val rootFrame = LayoutInflater.from(context)
-                .inflate(R.layout.view_router_root, containerView, false) as ViewGroup
+        val rootFrame = createLifeContainer(context, containerView)
         val targetView = onRootFrameReady(inLife, rootFrame)
         inLife.onCreateView(targetView, inData)
         containerView.addView(rootFrame)
@@ -45,6 +44,10 @@ open class DefaultRouterExecutor : RouterTransitionExecutor {
         if (savedState != null) inLife.onRestoreState(savedState)
         inLife.onStart()
     }
+
+    open fun createLifeContainer(context: Context, parentView: ViewGroup): ViewGroup =
+        LayoutInflater.from(context)
+                .inflate(R.layout.view_router_root, parentView, false) as ViewGroup
 
     open fun onRootFrameReady(inLife: Life, rootFrame: ViewGroup): ViewGroup = rootFrame
 

@@ -1,6 +1,7 @@
 package com.vladimirrybkin.lib_framework.presentation.view.drawer
 
 import android.content.res.Configuration
+import android.view.MenuItem
 
 /**
  * A side drawer controller interface.
@@ -9,16 +10,20 @@ import android.content.res.Configuration
  */
 interface DrawerController {
 
-    fun open(): Unit?
+    fun open()
 
-    fun close(): Unit?
+    fun close()
 
-    fun lock(): Unit?
+    fun lock()
 
-    fun unlock(): Unit?
+    fun unlock()
 
-    fun onConfigurationChanged(config: Configuration): Unit?
+    fun onOptionsItemSelected(item: MenuItem): Boolean
 
-    fun syncState(): Unit?
+    fun onConfigurationChanged(config: Configuration)
+
+    fun syncState()
+
+    fun boundToToolbar(bound: Boolean)
 
 }

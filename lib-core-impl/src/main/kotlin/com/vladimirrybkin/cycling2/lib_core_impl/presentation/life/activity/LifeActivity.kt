@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewGroup
 import com.vladimirrybkin.cycling2.lib_core.presentation.activity.ActivityLifeDispatcher
@@ -101,8 +102,16 @@ abstract class LifeActivity : AppCompatActivity() {
         lifeCycleDispatcher.onActivityConfigurationChanged(config)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        return lifeCycleDispatcher.onActivityCreateOptionsMenu(menu) || super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        return lifeCycleDispatcher.onActivityPrepareOptionsMenu(menu) || super.onPrepareOptionsMenu(menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return lifeCycleDispatcher.onActivityOptionsItemSelected(item)
+        return lifeCycleDispatcher.onActivityOptionsItemSelected(item) || super.onOptionsItemSelected(item)
     }
 
     override fun onBackPressed() {

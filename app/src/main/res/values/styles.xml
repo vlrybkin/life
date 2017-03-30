@@ -4,12 +4,20 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="CommonAppTheme">
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="homeAsUpIndicator">@drawable/icon_back</item>
+        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
     </style>
 
     <style name="ToolbarStyle" parent="Widget.AppCompat.Toolbar">
         <item name="elevation">4dp</item>
         <item name="android:background">@color/colorPrimary</item>
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+    </style>
+
+    <style name="DrawerArrowStyle" parent="@style/Widget.AppCompat.DrawerArrowToggle">
+        <item name="spinBars">true</item>
+        <item name="color">@android:color/white</item>
     </style>
 
 </resources>

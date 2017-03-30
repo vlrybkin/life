@@ -29,6 +29,7 @@ import com.vladimirrybkin.lib_framework.presentation.life.ParentLayout
 import com.vladimirrybkin.lib_framework.presentation.view.compound.sidemenu.SidemenuController
 import com.vladimirrybkin.lib_framework.presentation.view.compound.sidemenu.SidemenuObserver
 import com.vladimirrybkin.lib_framework.presentation.view.compound.sidemenu.SidemenuOwner
+import com.vladimirrybkin.lib_framework.presentation.view.compound.toolbar.ToolbarController
 import com.vladimirrybkin.lib_framework.presentation.view.drawer.DrawerContract
 import com.vladimirrybkin.lib_framework.presentation.view.drawer.DrawerPresenter
 import com.vladimirrybkin.lib_framework.presentation.view.drawer.DrawerViewWrapper
@@ -143,6 +144,7 @@ interface MainActivityLifeDI {
 
         @Provides @ActivityLifeScope
         fun provideSimpleViewRoute(bootstrapProvider: BootstrapProvider,
+                                   toolbarController: ToolbarController,
                                    sidemenuOwner: SidemenuOwner,
                                    @SplashScreenDI.SplashScreenQualifier splashScreenKey: Uri,
                                    @SplashScreenDI.SplashScreenQualifier splashScreenProducer: UriLifeProducer,
@@ -170,8 +172,8 @@ interface MainActivityLifeDI {
                                                         )
                                                     }
                                             ))
-                                            .andThen(Completable.create(MainActivityRouterPreconditions(keyIn,
-                                                    sidemenuOwner)))
+                                            .andThen(Completable.create(MainActivityRouterPreConditions(keyIn,
+                                                    sidemenuOwner, toolbarController)))
                                 }
 
                                 override fun onRootFrameReady(inLife: Life, rootFrame: ViewGroup): ViewGroup {
@@ -193,12 +195,14 @@ interface MainActivityLifeDI {
                                 }
 
                                 override fun createPostTransition(context: Context,
+                                                                  containerView: ViewGroup,
                                                                   keyIn: Uri,
                                                                   keyOut: Uri?,
                                                                   inLife: Life, inData: Bundle?, savedState: Bundle?,
                                                                   outLife: Life?): Completable {
                                     return Completable.create(
-                                            MainActivityRouterPostconditions(sidemenuOwner, inLife))
+                                            MainActivityRouterPostConditions(sidemenuOwner, toolbarController,
+                                                    inLife, containerView))
                                 }
                             })
                         }

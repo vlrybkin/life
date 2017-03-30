@@ -3,6 +3,7 @@ package com.vladimirrybkin.cycling2.lib_core.presentation.life.base
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewGroup
 
@@ -38,6 +39,10 @@ interface Life {
     fun onResult(data: Bundle) {}
 
     fun onConfigurationChanged(config: Configuration) {}
+
+    fun onCreateOptionsMenu(menu: Menu): Boolean = false
+
+    fun onPrepareOptionsMenu(menu: Menu): Boolean = false
 
     fun onOptionsItemSelected(item: MenuItem): Boolean = false
 

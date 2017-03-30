@@ -43,7 +43,11 @@ open class SimpleViewUriRouter(val containerView: ViewGroup) : UriRouter() {
         replaceTop(key, data, savedState, transitionIn, transitionOut)
     }
 
-    override fun pop(key: Uri, transitionOut: RouteTransition?) {
+    override fun pop(key: Uri,
+                     data: Bundle?,
+                     savedState: Bundle?,
+                     transitionIn: RouteTransition?,
+                     transitionOut: RouteTransition?) {
         // stack is not supported, do nothing
     }
 
@@ -76,6 +80,7 @@ open class SimpleViewUriRouter(val containerView: ViewGroup) : UriRouter() {
                             currentState?.key, transitionOut,
                             inLife, data, savedState, outLife),
                     executor.createPostTransition(containerView.context,
+                            containerView,
                             key,
                             currentState?.key,
                             inLife, data, savedState, outLife)

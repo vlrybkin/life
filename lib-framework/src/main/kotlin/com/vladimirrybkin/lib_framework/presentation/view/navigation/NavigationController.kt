@@ -9,6 +9,6 @@ import android.net.Uri
  */
 interface NavigationController {
 
-    fun selectItem(key: Uri): Unit?
+    fun selectItem(key: Uri)
 
 }

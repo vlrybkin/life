@@ -6,6 +6,7 @@ import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.view.Gravity
+import android.view.MenuItem
 import android.view.View
 import com.vladimirrybkin.lib_framework.R
 import rx.Observable
@@ -27,6 +28,8 @@ class DrawerViewWrapper(val activity: Activity,
 
     private val drawerToggle: ActionBarDrawerToggle
     private val watchers = LinkedList<OpenStateWatcher>()
+
+    private var boundToToolbar: Boolean = false
 
     private interface OpenStateWatcher {
 
@@ -79,6 +82,8 @@ class DrawerViewWrapper(val activity: Activity,
                 watchers.forEach { it.onOpenStateChange(true) }
             }
         }
+
+        drawerLayout.addDrawerListener(drawerToggle)
     }
 
     override fun observeOpenState(): Observable<Boolean> =
@@ -92,11 +97,19 @@ class DrawerViewWrapper(val activity: Activity,
 
     override fun unlock() =  drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+            if (boundToToolbar) drawerToggle.onOptionsItemSelected(item) else false
+
     override fun onConfigurationChanged(config: Configuration) =
             drawerToggle.onConfigurationChanged(config)
 
-    override fun syncState() = drawerToggle.syncState()
+    override fun syncState() = if (boundToToolbar) drawerToggle.syncState() else {}
 
     override fun isOpen(): Boolean = drawerLayout.isDrawerOpen(Gravity.START)
+
+    override fun boundToToolbar(bound: Boolean) {
+        this.boundToToolbar = bound
+        if (boundToToolbar) syncState()
+    }
 
 }

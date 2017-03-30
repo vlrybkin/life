@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewGroup
 import com.vladimirrybkin.cycling2.lib_core.presentation.life.base.Life
@@ -55,6 +56,10 @@ interface ActivityLifeDispatcher {
             life.onResult(intentToResult(requestCode, resultCode, data))
 
     fun onActivityConfigurationChanged(config: Configuration) = life.onConfigurationChanged(config)
+
+    fun onActivityCreateOptionsMenu(menu: Menu): Boolean = life.onCreateOptionsMenu(menu)
+
+    fun onActivityPrepareOptionsMenu(menu: Menu): Boolean = life.onPrepareOptionsMenu(menu)
 
     fun onActivityOptionsItemSelected(item: MenuItem): Boolean = life.onOptionsItemSelected(item)
 
