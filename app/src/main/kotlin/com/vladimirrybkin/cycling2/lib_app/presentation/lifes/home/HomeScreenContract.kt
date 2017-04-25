@@ -30,6 +30,8 @@ interface HomeScreenContract {
 
         fun onClearBootstrapClick()
 
+        fun onSendToTopScreen()
+
     }
 
     data class State(val number: Int) {
@@ -42,10 +44,10 @@ interface HomeScreenContract {
 
 }
 
-fun stateToBundle(state: HomeScreenContract.State, outBundle: Bundle): Bundle {
+fun homeStateToBundle(state: HomeScreenContract.State, outBundle: Bundle): Bundle {
     outBundle.putInt(EXTRA_NUMBER, state.number + 1)
     return outBundle
 }
 
-fun stateFromBundle(inBundle: Bundle): HomeScreenContract.State =
+fun homeStateFromBundle(inBundle: Bundle): HomeScreenContract.State =
         HomeScreenContract.State(inBundle.getInt(EXTRA_NUMBER))

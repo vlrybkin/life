@@ -53,7 +53,7 @@ interface ActivityLifeDispatcher {
     fun onActivityBackPressed() : Boolean = life.onBackPressed()
 
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) =
-            life.onResult(intentToResult(requestCode, resultCode, data))
+            life.onResult(requestCode, resultCode, intentToResult(requestCode, resultCode, data))
 
     fun onActivityConfigurationChanged(config: Configuration) = life.onConfigurationChanged(config)
 

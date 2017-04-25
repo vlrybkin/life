@@ -31,6 +31,8 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "io.reactivex:rxkotlin:$rootProject.ext.kotlin_rxversion"
     compile "io.reactivex:rxandroid:$rootProject.ext.rxAndroidVersion"
+    compile "javax.inject:javax.inject:$rootProject.ext.injectVersion"
 
     compile project(path: ':lib-core')
+
 }

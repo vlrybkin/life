@@ -5,6 +5,8 @@ import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.collapse.CollapseS
 import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.collapse.CollapseScreenDI
 import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.home.HomeScreen
 import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.home.HomeScreenDI
+import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.home_top.HomeTopScreen
+import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.home_top.HomeTopScreenDI
 import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.splash.SplashScreen
 import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.splash.SplashScreenDI
 import dagger.Module
@@ -25,6 +27,10 @@ class LifeKeysModule {
     @HomeScreenDI.HomeScreenQualifier
     @Provides
     fun provideHomeScreenKey(): Uri = Uri.parse(getKey(HomeScreen::class.java))
+
+    @HomeTopScreenDI.HomeTopScreenQualifier
+    @Provides
+    fun provideHomeTopScreenKey(): Uri = Uri.parse(getKey(HomeTopScreen::class.java))
 
     @CollapseScreenDI.CollapseScreenQualifier
     @Provides

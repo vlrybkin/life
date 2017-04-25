@@ -9,18 +9,19 @@ import android.support.v4.widget.DrawerLayout
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.vladimirrybkin.cycling2.activities.R
-import com.vladimirrybkin.cycling2.activities.presentation.lifes.CollapseScreenComponent
-import com.vladimirrybkin.cycling2.activities.presentation.lifes.HomeScreenComponent
-import com.vladimirrybkin.cycling2.activities.presentation.lifes.RoutingModule
-import com.vladimirrybkin.cycling2.activities.presentation.lifes.SplashScreenComponent
+import com.vladimirrybkin.cycling2.activities.presentation.lifes.*
 import com.vladimirrybkin.cycling2.lib_app.domain.bootstrap.BootstrapProvider
 import com.vladimirrybkin.cycling2.lib_app.domain.preconditions.LifePreconditions
 import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.collapse.CollapseScreen
 import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.collapse.CollapseScreenDI
 import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.home.HomeScreen
 import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.home.HomeScreenDI
+import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.home_top.HomeTopScreen
+import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.home_top.HomeTopScreenDI
 import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.splash.SplashScreen
 import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.splash.SplashScreenDI
+import com.vladimirrybkin.cycling2.lib_core.domain.route.base.RouterAction
+import com.vladimirrybkin.cycling2.lib_core.domain.route.uri.BackRouteUriProvider
 import com.vladimirrybkin.cycling2.lib_core.domain.route.uri.UriRoute
 import com.vladimirrybkin.cycling2.lib_core.domain.route.uri.UriRouter
 import com.vladimirrybkin.cycling2.lib_core.presentation.life.base.Life
@@ -37,7 +38,9 @@ import com.vladimirrybkin.lib_framework.presentation.view.navigation.NavigationC
 import com.vladimirrybkin.lib_framework.presentation.view.navigation.NavigationPresenter
 import com.vladimirrybkin.lib_framework.presentation.view.navigation.NavigationViewWrapper
 import com.vladimirrybkin.lib_router_simple_view.domain.route.DefaultRouterExecutor
+import com.vladimirrybkin.lib_router_simple_view.domain.route.SimpleViewRouterQualifier
 import com.vladimirrybkin.lib_router_simple_view.domain.route.SimpleViewUriRouter
+import com.vladimirrybkin.lib_router_simple_view.domain.route.createRouterUri
 import dagger.MembersInjector
 import dagger.Module
 import dagger.Provides
@@ -74,8 +77,10 @@ interface MainActivityLifeDI {
 
         fun createHomeScreenComponent(homeScreenModule: HomeScreenDI.HomeScreenModule): HomeScreenComponent
 
+        fun createHomeTopScreenComponent(homeTopScreenModule: HomeTopScreenDI.HomeTopScreenModule): HomeTopScreenComponent
+
         fun createSplashScreenComponent(splashScreenModule: SplashScreenDI.SplashScreenModule,
-                                        routingModule: RoutingModule): SplashScreenComponent
+                                        routingModule: SplashScreenRoutingModule): SplashScreenComponent
 
         fun createCollapseScreenComponent(collapseScreenModule: CollapseScreenDI.CollapseScreenModule): CollapseScreenComponent
 
@@ -129,8 +134,8 @@ interface MainActivityLifeDI {
             override fun onError(e: Throwable?) = Unit
 
             override fun onNext(key: Uri) = when (key) {
-                homeScreenKey -> homeRoute.go()
-                collapseScreenKey -> collapseRoute.go()
+                homeScreenKey -> homeRoute.go(navigationView.context)
+                collapseScreenKey -> collapseRoute.go(navigationView.context)
                 else -> Unit
             }
 
@@ -142,6 +147,14 @@ interface MainActivityLifeDI {
     class MainActivityRouteModule(val context: Context,
                                   val screenContainer: ViewGroup) {
 
+        @SimpleViewRouterQualifier
+        @Provides @ActivityLifeScope
+        fun provideBackRouteUriProvider(simpleViewUriRouter: SimpleViewUriRouter): BackRouteUriProvider = simpleViewUriRouter
+
+        @SimpleViewRouterQualifier
+        @Provides @ActivityLifeScope
+        fun provideSimpleViewRouteAsUriRouter(simpleViewUriRouter: SimpleViewUriRouter): UriRouter = simpleViewUriRouter
+
         @Provides @ActivityLifeScope
         fun provideSimpleViewRoute(bootstrapProvider: BootstrapProvider,
                                    toolbarController: ToolbarController,
@@ -150,9 +163,11 @@ interface MainActivityLifeDI {
                                    @SplashScreenDI.SplashScreenQualifier splashScreenProducer: UriLifeProducer,
                                    @HomeScreenDI.HomeScreenQualifier homeScreenKey: Uri,
                                    @HomeScreenDI.HomeScreenQualifier homeScreenProducer: UriLifeProducer,
+                                   @HomeTopScreenDI.HomeTopScreenQualifier homeTopScreenKey: Uri,
+                                   @HomeTopScreenDI.HomeTopScreenQualifier homeTopScreenProducer: UriLifeProducer,
                                    @CollapseScreenDI.CollapseScreenQualifier collapseScreenKey: Uri,
-                                   @CollapseScreenDI.CollapseScreenQualifier collapseProducer: UriLifeProducer): UriRouter =
-                SimpleViewUriRouter(screenContainer)
+                                   @CollapseScreenDI.CollapseScreenQualifier collapseProducer: UriLifeProducer): SimpleViewUriRouter =
+                SimpleViewUriRouter("mainrouter", screenContainer)
                         .also {
                             it.replaceDefaultExecutor(object : DefaultRouterExecutor() {
                                 override fun createPreTransition(
@@ -164,12 +179,14 @@ interface MainActivityLifeDI {
 
                                     return Completable
                                             .create(LifePreconditions(
+                                                    context,
                                                     (inLife as Any).javaClass,
                                                     bootstrapProvider,
                                                     provideSplashScreenRoute(splashScreenKey, it).apply {
-                                                        inState(
-                                                            SplashScreenDI.State(keyIn, inData, savedState).toBundle()
-                                                        )
+                                                        data(SplashScreenDI.State(inData, savedState).toBundle())
+                                                    }.apply {
+                                                        if (keyOut != null)
+                                                            backRoute(RouterAction.ACTION_REPLACE_TOP.createRouterUri("", it.authority, keyOut))
                                                     }
                                             ))
                                             .andThen(Completable.create(MainActivityRouterPreConditions(keyIn,
@@ -213,6 +230,9 @@ interface MainActivityLifeDI {
                             addProducer(homeScreenKey, homeScreenProducer)
                         }
                         .apply {
+                            addProducer(homeTopScreenKey, homeTopScreenProducer)
+                        }
+                        .apply {
                             addProducer(collapseScreenKey, collapseProducer)
                         }
 
@@ -227,8 +247,8 @@ interface MainActivityLifeDI {
                     as MainActivityLifeDI.MainActivityLifeComponent
             return object : UriLifeProducer {
                 override fun produceLife(key: Uri, data: Bundle?): Life? {
-                    return HomeScreen({
-                        activityLifeComponent.createHomeScreenComponent(HomeScreenDI.HomeScreenModule())
+                    return HomeScreen({ module ->
+                        activityLifeComponent.createHomeScreenComponent(module)
                     })
                 }
             }
@@ -237,8 +257,28 @@ interface MainActivityLifeDI {
         @Provides
         @HomeScreenDI.HomeScreenQualifier
         fun provideHomeScreenRoute(@HomeScreenDI.HomeScreenQualifier homeScreenKey: Uri,
-                                   router: UriRouter): UriRoute =
-                UriRoute(homeScreenKey, router::replaceTop)
+                                   @SimpleViewRouterQualifier router: UriRouter): UriRoute =
+                router.createRoute(homeScreenKey, RouterAction.ACTION_REPLACE_TOP)
+
+        @Provides @ActivityLifeScope
+        @HomeTopScreenDI.HomeTopScreenQualifier
+        fun provideHomeTopScreenLifeProducer(): UriLifeProducer {
+            val activityLifeComponent = context.getSystemService(COMPONENT_NAME)
+                    as MainActivityLifeDI.MainActivityLifeComponent
+            return object : UriLifeProducer {
+                override fun produceLife(key: Uri, data: Bundle?): Life? {
+                    return HomeTopScreen({ module ->
+                        activityLifeComponent.createHomeTopScreenComponent(module)
+                    })
+                }
+            }
+        }
+
+        @Provides
+        @HomeTopScreenDI.HomeTopScreenQualifier
+        fun provideHomeTopScreenRoute(@HomeTopScreenDI.HomeTopScreenQualifier homeTopScreenKey: Uri,
+                                      @SimpleViewRouterQualifier router: UriRouter): UriRoute =
+                router.createRoute(homeTopScreenKey, RouterAction.ACTION_REPLACE_TOP)
 
         @Provides @ActivityLifeScope
         @CollapseScreenDI.CollapseScreenQualifier
@@ -257,8 +297,8 @@ interface MainActivityLifeDI {
         @Provides
         @CollapseScreenDI.CollapseScreenQualifier
         fun provideCollapseScreenRoute(@CollapseScreenDI.CollapseScreenQualifier collapseScreenKey: Uri,
-                                       router: UriRouter): UriRoute =
-                UriRoute(collapseScreenKey, router::replaceTop)
+                                       @SimpleViewRouterQualifier router: UriRouter): UriRoute =
+                router.createRoute(collapseScreenKey, RouterAction.ACTION_REPLACE_TOP)
 
         @Provides @ActivityLifeScope
         @SplashScreenDI.SplashScreenQualifier
@@ -269,7 +309,7 @@ interface MainActivityLifeDI {
                 override fun produceLife(key: Uri, data: Bundle?): Life? {
                     return SplashScreen({ screenModule ->
                         activityLifeComponent.createSplashScreenComponent(screenModule,
-                                RoutingModule())
+                                SplashScreenRoutingModule())
                     })
                 }
             }
@@ -278,8 +318,8 @@ interface MainActivityLifeDI {
         @Provides
         @SplashScreenDI.SplashScreenQualifier
         fun provideSplashScreenRoute(@SplashScreenDI.SplashScreenQualifier splashScreenKey: Uri,
-                                     router: UriRouter): UriRoute =
-                UriRoute(splashScreenKey, router::replaceTop)
+                                     @SimpleViewRouterQualifier router: UriRouter): UriRoute =
+                router.createRoute(splashScreenKey, RouterAction.ACTION_REPLACE_TOP)
     }
 
 }

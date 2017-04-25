@@ -1,10 +1,7 @@
 package com.vladimirrybkin.lib_router_simple_view.domain.route
 
 import android.content.Context
-import android.net.Uri
-import android.os.Bundle
 import android.view.ViewGroup
-import com.vladimirrybkin.cycling2.lib_core.domain.route.base.RouteTransition
 import com.vladimirrybkin.cycling2.lib_core.presentation.life.base.Life
 import rx.Completable
 
@@ -16,31 +13,23 @@ import rx.Completable
 interface RouterTransitionExecutor {
 
     fun createPreTransition(context: Context,
-                            keyIn: Uri,
-                            keyOut: Uri?,
-                            inLife: Life,
-                            inData: Bundle?,
-                            savedState: Bundle?,
-                            outLife: Life?): Completable = Completable.complete()
+                            stateIn: RouterState,
+                            lifeIn: Life,
+                            stateOut: RouterState?,
+                            lifeOut: Life?): Completable = Completable.complete()
 
     fun createLifeTransition(context: Context,
                              containerView: ViewGroup,
-                             keyIn: Uri,
-                             transitionIn: RouteTransition?,
-                             keyOut: Uri?,
-                             transitionOut: RouteTransition?,
-                             inLife: Life,
-                             inData: Bundle?,
-                             savedState: Bundle?,
-                             outLife: Life?): Completable
+                             stateIn: RouterState,
+                             lifeIn: Life,
+                             stateOut: RouterState?,
+                             lifeOut: Life?): Completable
 
     fun createPostTransition(context: Context,
                              containerView: ViewGroup,
-                             keyIn: Uri,
-                             keyOut: Uri?,
-                             inLife: Life,
-                             inData: Bundle?,
-                             savedState: Bundle?,
-                             outLife: Life?): Completable = Completable.complete()
+                             stateIn: RouterState,
+                             lifeIn: Life,
+                             stateOut: RouterState?,
+                             lifeOut: Life?): Completable = Completable.complete()
 
 }

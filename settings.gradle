@@ -1,1 +1,1 @@
-include ':app', ':lib-core', ':lib-core-impl', ':lib-framework', ':lib-router-simple-view'
+include ':app', ':lib-core', ':lib-core-impl', ':lib-framework', ':lib-router-simple-view', ':lib-router-activity'

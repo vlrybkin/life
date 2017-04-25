@@ -25,6 +25,10 @@
 
         </activity>
 
+        <meta-data
+            android:name="SCHEME"
+            android:value="cycling2"/>
+
     </application>
 
 </manifest>

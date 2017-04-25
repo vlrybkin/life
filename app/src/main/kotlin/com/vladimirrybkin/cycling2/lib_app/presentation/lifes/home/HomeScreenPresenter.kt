@@ -1,7 +1,12 @@
 package com.vladimirrybkin.cycling2.lib_app.presentation.lifes.home
 
+import android.content.Context
 import android.os.Bundle
 import com.vladimirrybkin.cycling2.lib_app.domain.bootstrap.BootstrapConsumer
+import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.home_top.HomeTopScreenContract
+import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.home_top.HomeTopScreenDI
+import com.vladimirrybkin.cycling2.lib_app.presentation.lifes.home_top.homeTopStateToBundle
+import com.vladimirrybkin.cycling2.lib_core.domain.route.uri.UriRoute
 import javax.inject.Inject
 
 /**
@@ -9,7 +14,9 @@ import javax.inject.Inject
  *
  * @author Vladimir Rybkin
  */
-class HomeScreenPresenter @Inject constructor(val bootstrapConsumer: BootstrapConsumer) :
+class HomeScreenPresenter @Inject constructor(private val context: Context,
+                                              private val bootstrapConsumer: BootstrapConsumer,
+                                              @HomeTopScreenDI.HomeTopScreenQualifier private val topScreenRoute: UriRoute) :
         HomeScreenContract.Presenter {
 
     private var view: HomeScreenContract.View? = null
@@ -25,16 +32,22 @@ class HomeScreenPresenter @Inject constructor(val bootstrapConsumer: BootstrapCo
     }
 
     override fun restoreState(savedState: Bundle) {
-        state = stateFromBundle(savedState)
+        state = homeStateFromBundle(savedState)
         view?.renderState(state)
     }
 
     override fun saveState(outState: Bundle) {
-        stateToBundle(state, outState)
+        homeStateToBundle(state, outState)
     }
 
     override fun onClearBootstrapClick() {
         bootstrapConsumer.clearBootstrap()
+    }
+
+    override fun onSendToTopScreen() {
+        topScreenRoute.requestCode(1)
+                .data(homeTopStateToBundle(HomeTopScreenContract.State(state.number + 1), Bundle()))
+                .go(context)
     }
 
 }

@@ -21,16 +21,18 @@ open class DefaultRouterExecutor : RouterTransitionExecutor {
                                       keyIn: Uri, transitionIn: RouteTransition?,
                                       keyOut: Uri?, transitionOut: RouteTransition?,
                                       inLife: Life, inData: Bundle?, savedState: Bundle?,
+                                      requestCode: Int, resultCode: Int, result: Bundle?,
                                       outLife: Life?): Completable {
         return Completable.create {
             tearDown(outLife, containerView)
-            setup(context, containerView, inLife, inData, savedState)
+            setup(context, containerView, inLife, inData, savedState, requestCode, resultCode, result)
             it.onCompleted()
         }
     }
 
     private fun setup(context: Context, containerView: ViewGroup,
-                      inLife: Life?, inData: Bundle?, savedState: Bundle?) {
+                      inLife: Life?, inData: Bundle?, savedState: Bundle?,
+                      requestCode: Int, resultCode: Int, result: Bundle?) {
         if (inLife == null) return
 
         inLife.attachBaseContext(context)
@@ -42,6 +44,9 @@ open class DefaultRouterExecutor : RouterTransitionExecutor {
         containerView.addView(rootFrame)
 
         if (savedState != null) inLife.onRestoreState(savedState)
+
+        if (resultCode >= 0) inLife.onResult(requestCode, resultCode, result)
+
         inLife.onStart()
     }
 
@@ -59,7 +64,6 @@ open class DefaultRouterExecutor : RouterTransitionExecutor {
         containerView.removeAllViews()
         outLife.onDestroy()
         outLife.detachBaseContext()
-        containerView.removeAllViews()
     }
 
 }

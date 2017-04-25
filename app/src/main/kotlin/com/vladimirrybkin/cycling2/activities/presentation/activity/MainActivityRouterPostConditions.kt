@@ -11,7 +11,7 @@ import com.vladimirrybkin.lib_framework.presentation.view.drawer.DrawerEnabled
 import rx.Completable
 
 /**
- * Screen transitions postcondition for the main activity life.
+ * Lives transitions postcondition for the main activity life.
  *
  * @author Vladimir Rybkin
  */

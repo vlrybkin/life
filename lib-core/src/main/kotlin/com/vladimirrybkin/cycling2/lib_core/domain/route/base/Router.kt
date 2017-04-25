@@ -1,6 +1,7 @@
 package com.vladimirrybkin.cycling2.lib_core.domain.route.base
 
 import android.content.res.Configuration
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -18,25 +19,35 @@ interface Router<in K> {
              data: Bundle?,
              savedState: Bundle?,
              transitionIn: RouteTransition?,
-             transitionOut: RouteTransition?)
+             transitionOut: RouteTransition?,
+             requestCode: Int,
+             routeUriBack: Uri?)
 
     fun pop(key: K,
-            data: Bundle?,
-            savedState: Bundle?,
             transitionIn: RouteTransition?,
-            transitionOut: RouteTransition?)
+            transitionOut: RouteTransition?,
+            resultCode: Int,
+            result: Bundle?)
 
     fun replaceTop(key: K,
                    data: Bundle?,
                    savedState: Bundle?,
                    transitionIn: RouteTransition?,
-                   transitionOut: RouteTransition?)
+                   transitionOut: RouteTransition?,
+                   requestCode: Int,
+                   routeUriBack: Uri?,
+                   resultCode: Int,
+                   result: Bundle?)
 
     fun restartStack(key: K,
                      data: Bundle?,
                      savedState: Bundle?,
                      transitionIn: RouteTransition?,
-                     transitionOut: RouteTransition?)
+                     transitionOut: RouteTransition?,
+                     requestCode: Int,
+                     routeUriBack: Uri?,
+                     resultCode: Int,
+                     result: Bundle?)
 
     fun save(outState: Bundle): Bundle
 

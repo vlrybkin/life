@@ -41,6 +41,7 @@ dependencies {
 
     compile project(path: ':lib-framework')
     compile project(path: ':lib-router-simple-view')
+    compile project(path: ':lib-router-activity')
 }
 repositories {
     mavenCentral()

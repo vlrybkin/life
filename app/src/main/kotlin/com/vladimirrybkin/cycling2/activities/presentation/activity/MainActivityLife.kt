@@ -17,6 +17,7 @@ import com.vladimirrybkin.lib_framework.R
 import com.vladimirrybkin.lib_framework.domain.di.life.DILife
 import com.vladimirrybkin.lib_framework.presentation.life.ParentLayout
 import com.vladimirrybkin.lib_framework.presentation.view.compound.sidemenu.SidemenuOwner
+import com.vladimirrybkin.lib_router_simple_view.domain.route.SimpleViewRouterQualifier
 import dagger.MembersInjector
 import rx.Subscriber
 import rx.android.schedulers.AndroidSchedulers
@@ -40,7 +41,7 @@ MembersInjector<MainActivityLife>) : DILife() {
     @Inject
     lateinit var activity: Activity
 
-    @Inject
+    @field:[Inject SimpleViewRouterQualifier]
     lateinit var router: UriRouter
 
     @Inject
@@ -71,6 +72,7 @@ MembersInjector<MainActivityLife>) : DILife() {
 
         addComponent(MainActivityLifeDI.COMPONENT_NAME, injector)
         injector.injectMembers(this)
+        addComponent(router.authority, router)
 
         subscriptions.add(sidemenuOwner.observeMenuItem()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -91,7 +93,7 @@ MembersInjector<MainActivityLife>) : DILife() {
 
     override fun onStart() {
         super.onStart()
-        if (!router.hasLife()) initialRoute.go()
+        if (!router.hasLife()) initialRoute.go(contextWrapper as Context)
     }
 
     override fun onSaveState(outState: Bundle) {

@@ -22,6 +22,8 @@ interface Life {
 
     fun onRestoreState(savedState: Bundle) {}
 
+    fun onResult(requestCode: Int, resultCode: Int, data: Bundle?) {}
+
     fun onStart() {}
 
     fun onSaveState(outState: Bundle) {}
@@ -35,8 +37,6 @@ interface Life {
     fun detachBaseContext() {}
 
     fun onBackPressed(): Boolean = false
-
-    fun onResult(data: Bundle) {}
 
     fun onConfigurationChanged(config: Configuration) {}
 

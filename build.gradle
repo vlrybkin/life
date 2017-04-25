@@ -21,6 +21,7 @@ project.ext {
     supportLibraryVersion = '25.3.0'
     rxAndroidVersion = '1.2.1'
     daggerVersion = '2.9'
+    injectVersion = '1'
 }
 
 allprojects {

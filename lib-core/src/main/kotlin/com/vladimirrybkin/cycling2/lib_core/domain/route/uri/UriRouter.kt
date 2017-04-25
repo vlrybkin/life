@@ -3,6 +3,7 @@ package com.vladimirrybkin.cycling2.lib_core.domain.route.uri
 import android.net.Uri
 import android.os.Bundle
 import com.vladimirrybkin.cycling2.lib_core.domain.route.base.Router
+import com.vladimirrybkin.cycling2.lib_core.domain.route.base.RouterAction
 import com.vladimirrybkin.cycling2.lib_core.presentation.life.uri.UriLifeProducer
 
 /**
@@ -10,7 +11,9 @@ import com.vladimirrybkin.cycling2.lib_core.presentation.life.uri.UriLifeProduce
  *
  * @author Vladimir Rybkin
  */
-abstract class UriRouter: Router<Uri> {
+abstract class UriRouter(val authority: String): Router<Uri> {
+
+    abstract fun createRoute(lifeUri: Uri, action: RouterAction): UriRoute
 
     private var producers: MutableMap<Uri, UriLifeProducer> = mutableMapOf()
 

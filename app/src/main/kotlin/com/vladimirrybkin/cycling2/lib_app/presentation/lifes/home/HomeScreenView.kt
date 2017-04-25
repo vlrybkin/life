@@ -23,6 +23,7 @@ class HomeScreenView : LinearLayout, HomeScreenContract.View {
     override fun onFinishInflate() {
         super.onFinishInflate()
         home_clear_bootstrap.onClick { presenter?.onClearBootstrapClick() }
+        home_send_to_top.onClick { presenter?.onSendToTopScreen() }
     }
 
     override fun applyPresenter(presenter: HomeScreenContract.Presenter) {

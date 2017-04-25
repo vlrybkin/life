@@ -9,4 +9,4 @@ import javax.inject.Qualifier
  */
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
-annotation class RouteBack
+annotation class RouteBack(val value: String = "")

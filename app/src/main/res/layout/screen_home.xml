@@ -40,6 +40,14 @@
             android:layout_marginTop="32dp"
             android:text="CLEAR THE BOOTSTRAP"/>
 
+        <Button android:id="@+id/home_send_to_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/home_clear_bootstrap"
+            android:layout_marginTop="32dp"
+            android:text="SEND TO TOP"/>
+
     </RelativeLayout>
 
 </com.vladimirrybkin.cycling2.lib_app.presentation.lifes.home.HomeScreenView>

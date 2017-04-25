@@ -1,5 +1,7 @@
 package com.vladimirrybkin.cycling2.lib_core.domain.route.base
 
+import android.content.Context
+
 /**
  * A route interface.
  *
@@ -7,6 +9,6 @@ package com.vladimirrybkin.cycling2.lib_core.domain.route.base
  */
 interface Route {
 
-    fun go()
+    fun go(context: Context)
 
 }

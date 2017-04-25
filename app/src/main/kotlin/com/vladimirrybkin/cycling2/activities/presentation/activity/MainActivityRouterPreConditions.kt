@@ -6,7 +6,7 @@ import com.vladimirrybkin.lib_framework.presentation.view.compound.toolbar.Toolb
 import rx.Completable
 
 /**
- * Screen transitions precondition for the main activity life.
+ * Lives transitions precondition for the main activity life.
  *
  * @author Vladimir Rybkin
  */
